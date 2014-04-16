@@ -4,7 +4,6 @@
 
 import time
 
-import numpy as np
 from climin import mathadapt as ma
 from climin.stops import never, always
 from climin.util import clear_info
@@ -39,7 +38,7 @@ class Trainer(object):
     yield control back to the user. Determined by the ``.stop`` field.
     Contains a callable, for example see ``climin.stops``.
 
-    Why do we need separate stopping and interrupting criterions? An
+    Why do we need separate stopping and interrupting criteria? An
     optimization might get interrupted (e.g. by a SIGINT of a shared resource
     system). In order to find out whether the trainer thinks optimization has
     actually finished, the ``.stopped`` field is provided.
@@ -131,7 +130,7 @@ class Trainer(object):
         self._score = score
         self.pause = pause
         self.stop = stop
-        self.interrupt = never
+        self.interrupt = interrupt
         self.report = report
 
         self.best_pars = None
@@ -152,11 +151,11 @@ class Trainer(object):
             'loss': ma.scalar(self.score(*fit_data))
         }
         for key, data in self.eval_data.items():
-            update_losses['%s_loss' % key] = self.score(*data)
+            update_losses['%s_loss' % key] = ma.scalar(self.score(*data))
         return update_losses
 
     def fit(self, *fit_data):
-        """Run ``.iter_fit()`` until it terminats
+        """Run ``.iter_fit()`` until it terminates
 
         Termination will occur when either stop or interrupt is True. During
         each pause, ``.report(info)`` will be executed."""
@@ -172,7 +171,7 @@ class Trainer(object):
         ``model.iter_fit()`` and ultimately the used loss function of that
         model.
 
-        Each iteration of the fitting constitues to running the optimizer of the
+        Each iteration of the fitting constitutes to running the optimizer of the
         model until either interrupt or pause returns True.
 
         In both cases, the generator will yield to the user. Additionally:

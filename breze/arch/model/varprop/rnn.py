@@ -274,13 +274,16 @@ def recurrent_layer(in_mean, in_var, weights, f, initial_hidden,
 
     initial_hidden_mean = repeat(initial_hidden.dimshuffle('x', 0), in_mean.shape[1], axis=0)
 
-    initial_hidden_var = T.zeros_like(initial_hidden_mean) + 1e-8
+    initial_hidden_var = T.zeros_like(initial_hidden_mean, dtype=theano
+                                      .config.floatX) + 1e-8
 
     (hidden_in_mean_rec, hidden_in_var_rec, hidden_mean_rec, hidden_var_rec), _ = theano.scan(
         step,
         sequences=[in_mean, in_var],
-        outputs_info=[T.zeros_like(initial_hidden_mean),
-                      T.zeros_like(initial_hidden_var),
+        outputs_info=[T.zeros_like(initial_hidden_mean, dtype=theano.config
+                                   .floatX),
+                      T.zeros_like(initial_hidden_var, dtype=theano.config
+                                   .floatX),
                       initial_hidden_mean,
                       initial_hidden_var])
 

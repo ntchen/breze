@@ -60,7 +60,11 @@ def supervised_loss(target, prediction, loss, coord_axis=1, prefix=''):
     """
     f_loss = lookup(loss, loss_)
     loss_coord_wise = f_loss(target, prediction)
-    loss_sample_wise = loss_coord_wise.sum(axis=coord_axis)
+    try:
+        loss_sample_wise = loss_coord_wise.sum(axis=coord_axis)
+    except ValueError:
+        #We do not have enough dimensions, the loss is not coordinate-wise
+        loss_sample_wise = loss_coord_wise
     loss = loss_sample_wise.mean()
 
     return get_named_variables(locals(), prefix=prefix)

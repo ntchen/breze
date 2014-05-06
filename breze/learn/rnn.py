@@ -169,7 +169,7 @@ class BaseRnn(Model):
 
         return Hp
 
-    def _make_loss_functions(self, mode=None):
+    def _make_loss_functions(self, weights=False, mode=None):
         """Return pair `f_loss, f_d_loss` of functions.
 
          - f_loss returns the current loss,
@@ -181,6 +181,8 @@ class BaseRnn(Model):
             d_loss = project_into_l2_ball(d_loss, self.gradient_clip)
 
         args = list(self.data_arguments)
+        if weights:
+            args += ['weights']
         f_loss = self.function(args, 'loss', explicit_pars=True, mode=mode)
         f_d_loss = self.function(args, d_loss, explicit_pars=True, mode=mode)
         return f_loss, f_d_loss
@@ -381,7 +383,9 @@ class SupervisedFastDropoutRnn(BaseRnn, SupervisedBrezeWrapperBase):
                  optimizer='rprop',
                  batch_size=None,
                  max_iter=1000,
-                 verbose=False):
+                 verbose=False,
+                 weigths=False):
+        self.weights = weigths
         self.p_dropout_inpt = p_dropout_inpt
         self.p_dropout_hiddens = p_dropout_hiddens
         if isinstance(self.p_dropout_hiddens, float):
@@ -410,6 +414,8 @@ class SupervisedFastDropoutRnn(BaseRnn, SupervisedBrezeWrapperBase):
     def _init_exprs(self):
         self.exprs = {'inpt': T.tensor3('inpt'),
                       'target': T.tensor3('target')}
+        if self.weights:
+            self.exprs['weights'] = T.tensor3('weights')
         P = self.parameters
 
         n_layers = len(self.n_hiddens)
@@ -447,5 +453,10 @@ class SupervisedFastDropoutRnn(BaseRnn, SupervisedBrezeWrapperBase):
             in_to_out=in_to_out, skip_to_outs=skip_to_outs,
             p_dropouts=p_dropouts, hotk_inpt=False))
 
-        self.exprs.update(varprop_supervised_loss(
-            self.exprs['target'], self.exprs['output'], self.loss, 2))
+        if self.weights:
+            self.exprs.update(varprop_supervised_loss(
+                self.exprs['target'], self.exprs['output'], self.loss, 2,
+                weights=self.exprs['weights']))
+        else:
+            self.exprs.update(varprop_supervised_loss(
+                self.exprs['target'], self.exprs['output'], self.loss, 2))

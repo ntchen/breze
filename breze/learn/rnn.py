@@ -384,8 +384,8 @@ class SupervisedFastDropoutRnn(BaseRnn, SupervisedBrezeWrapperBase):
                  batch_size=None,
                  max_iter=1000,
                  verbose=False,
-                 weigths=False):
-        self.weights = weigths
+                 weights=False):
+        self.weights = weights
         self.p_dropout_inpt = p_dropout_inpt
         self.p_dropout_hiddens = p_dropout_hiddens
         if isinstance(self.p_dropout_hiddens, float):

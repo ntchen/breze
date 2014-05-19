@@ -11,7 +11,7 @@ from ...util import lookup
 from ...component import transfer
 from pooling import pooling_layer
 
-
+'''
 def parameters(n_inpt, n_hiddens, n_output, skip_to_out=False, prefix=''):
     spec = dict(in_to_hidden=(n_inpt, n_hiddens[0]),
                 hidden_to_out=(n_hiddens[-1], n_output),
@@ -34,6 +34,34 @@ def parameters(n_inpt, n_hiddens, n_output, skip_to_out=False, prefix=''):
             spec['hidden_%i_to_out' % i] = (h, n_output)
 
     spec = dict(('%s%s'% (prefix, k), v)  for k, v in spec.items())
+
+    return spec
+'''
+
+def parameters(n_inpt, n_hiddens, n_output, skip_to_out=False):
+    spec = dict(in_to_hidden=(n_inpt, n_hiddens[0]),
+                hidden_to_out=(n_hiddens[-1], n_output),
+                hidden_bias_0=n_hiddens[0],
+                out_bias=n_output)
+
+    zipped = zip(n_hiddens[:-1], n_hiddens[1:])
+    for i, (inlayer, outlayer) in enumerate(zipped):
+        spec['hidden_to_hidden_%i' % i] = (inlayer, outlayer)
+
+    if skip_to_out:
+        spec['in_to_out'] = (n_inpt, n_output)
+
+    for i, h in enumerate(n_hiddens):
+        spec['hidden_bias_%i' % i] = h
+        spec['recurrent_%i' % i] = (h, h)
+        spec['initial_hiddens_%i' % i] = h
+        spec['initial_hiddens_mean_%i' % i] = h
+        spec['initial_hiddens_var_%i' % i] = h
+        if skip_to_out and i < len(n_hiddens):
+            # Only do for all but the last layer.
+            spec['hidden_%i_to_out' % i] = (h, n_output)
+
+    print spec
 
     return spec
 

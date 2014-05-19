@@ -438,6 +438,10 @@ class SupervisedFastDropoutRnn(BaseRnn, SupervisedBrezeWrapperBase):
                       for i in range(n_layers)]
         initial_hiddens = [getattr(P, 'initial_hiddens_%i' % i)
                            for i in range(n_layers)]
+        initial_hiddens_mean = [getattr(P, 'initial_hiddens_mean_%i' % i)
+                           for i in range(n_layers)]
+        initial_hiddens_var = [getattr(P, 'initial_hiddens_var_%i' % i)
+                           for i in range(n_layers)]
         hidden_biases = [getattr(P, 'hidden_bias_%i' % i)
                          for i in range(n_layers)]
 
@@ -461,6 +465,7 @@ class SupervisedFastDropoutRnn(BaseRnn, SupervisedBrezeWrapperBase):
             self.exprs['inpt'], inpt_var, P.in_to_hidden, hidden_to_hiddens,
             P.hidden_to_out, hidden_biases,
             hidden_var_scales_sqrt, initial_hiddens,
+            initial_hiddens_mean, initial_hiddens_var,
             recurrents, P.out_bias, out_var_scale_sqrt,
             self.hidden_transfers, self.out_transfer,
             in_to_out=in_to_out, skip_to_outs=skip_to_outs,

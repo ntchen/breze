@@ -17,9 +17,7 @@ from breze.learn.base import (
     SupervisedBrezeWrapperBase, UnsupervisedBrezeWrapperBase)
 #varprop import rnn as varprop_rnn
 
-
 # TODO check docstrings (e.g. loss is wrong)
-
 
 class BaseRnn(Model):
     """Base class for RNNs.
@@ -139,6 +137,10 @@ class BaseRnn(Model):
                       for i in range(n_layers)]
         initial_hiddens = [getattr(P, 'initial_hiddens_%i' % i)
                            for i in range(n_layers)]
+        initial_hiddens_mean = [getattr(P, 'initial_hiddens_mean_%i' % i)
+                           for i in range(n_layers)]
+        initial_hiddens_var = [getattr(P, 'initial_hiddens_var_%i' % i)
+                           for i in range(n_layers)]
         hidden_biases = [getattr(P, 'hidden_bias_%i' % i)
                          for i in range(n_layers)]
 
@@ -151,7 +153,7 @@ class BaseRnn(Model):
 
         self.exprs.update(rnn.exprs(
             self.exprs['inpt'], P.in_to_hidden, hidden_to_hiddens,
-            P.hidden_to_out, hidden_biases, initial_hiddens,
+            P.hidden_to_out, hidden_biases, initial_hiddens, initial_hiddens_mean, initial_hiddens_var,
             recurrents, P.out_bias, self.hidden_transfers, self.out_transfer,
             self.pooling, self.leaky_coeffs, in_to_out,  skip_to_outs))
 
